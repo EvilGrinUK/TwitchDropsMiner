@@ -2415,9 +2415,10 @@ class GUIManager:
 
         while True:
             try:
-                # Drain pending Tk events non-blockingly
-                while do_one_event(DONT_WAIT):
-                    pass
+                # Limit event processing per pass so asyncio is never starved
+                count = 0
+                while count < 50 and do_one_event(DONT_WAIT):
+                    count += 1
             except tk.TclError:
                 # Root window was destroyed
                 break
